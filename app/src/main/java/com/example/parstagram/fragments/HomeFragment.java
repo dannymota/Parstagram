@@ -41,8 +41,8 @@ public class HomeFragment extends Fragment {
 
     public static final String TAG = "HomeFragment";
     private RecyclerView rvPosts;
-    private PostsAdapter adapter;
-    private List<Post> allPosts;
+    public PostsAdapter adapter;
+    public List<Post> allPosts;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -94,7 +94,7 @@ public class HomeFragment extends Fragment {
         queryPosts();
     }
 
-    private void queryPosts() {
+    protected void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
         query.setLimit(20);
@@ -107,9 +107,9 @@ public class HomeFragment extends Fragment {
                     return;
                 }
 
-                for (Post post : posts) {
-                    Log.i(TAG, "Post: " + post.getDescription() + " by User: " + post.getUser().getUsername());
-                }
+//                for (Post post : posts) {
+//                    Log.i(TAG, "Post: " + post.getDescription() + " by User: " + post.getUser().getUsername());
+//                }
 
                 allPosts.addAll(posts);
                 adapter.notifyDataSetChanged();
