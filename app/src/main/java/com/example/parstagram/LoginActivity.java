@@ -60,6 +60,23 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void signUpUser(String username, String password) {
+        Log.i(TAG, "Attempting to sign up " + username);
+
+        ParseUser.signUpInBackground(username, password, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with login", e);
+                    Toast.makeText(LoginActivity.this, "Invalid username/password", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                getMainActivity();
+                Toast.makeText(LoginActivity.this, "Login success", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void getMainActivity() {
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
