@@ -2,6 +2,7 @@ package com.example.parstagram;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +14,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterInside;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.parse.ParseFile;
+
+import org.parceler.Parcels;
 
 import java.util.List;
 
@@ -63,18 +68,22 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         private TextView tvUsername;
         private ImageView ivImage;
         private TextView tvDescription;
+        private ImageView ivProfileImage;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvUsername = itemView.findViewById(R.id.tvUsername);
             ivImage = itemView.findViewById(R.id.ivImage);
             tvDescription = itemView.findViewById(R.id.tvDescription);
+            ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
             itemView.setOnClickListener(this);
         }
 
         public void bind(Post post) {
+            tvDescription.setEllipsize(TextUtils.TruncateAt.END);
             tvDescription.setText(post.getDescription());
             tvUsername.setText(post.getUser().getUsername());
+            Glide.with(context).load(R.drawable.ic_launcher_background).transform(new CenterInside(), new RoundedCorners(400)).into(ivProfileImage);
             ParseFile image = post.getImage();
             if (image != null) {
                 Glide.with(context).load(image.getUrl()).into(ivImage);
@@ -85,7 +94,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "test");
             int position = getAdapterPosition();
             // Make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
@@ -94,7 +102,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 // Create intent for the new activity
                 Intent intent = new Intent(context, PostDetailsActivity.class);
                 // Serialize the movie using parceler, use its short name as a key
-                intent.putExtra("post", post);
+                intent.putExtra(Post.class.getSimpleName(), Parcels.wrap(post));
                 // Show the activity
                 context.startActivity(intent);
             }

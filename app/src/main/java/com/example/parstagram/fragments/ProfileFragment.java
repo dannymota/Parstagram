@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,6 +13,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterInside;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.parstagram.Post;
 import com.example.parstagram.ProfilePostsAdapter;
 import com.example.parstagram.R;
@@ -28,6 +32,7 @@ public class ProfileFragment extends Fragment {
     private RecyclerView rvProfilePosts;
     private ProfilePostsAdapter adapter;
     private List<Post> allPosts;
+    private ImageView ivProfileImage;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,7 +44,9 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ivProfileImage = view.findViewById(R.id.ivProfileImage);
         rvProfilePosts = view.findViewById(R.id.rvProfilePosts);
+        Glide.with(this).load(R.drawable.ic_launcher_background).transform(new CenterInside(), new RoundedCorners(400)).into(ivProfileImage);
 
         allPosts = new ArrayList<>();
         adapter = new ProfilePostsAdapter(getContext(), allPosts);
