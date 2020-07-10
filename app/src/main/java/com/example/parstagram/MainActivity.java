@@ -20,8 +20,7 @@ import com.parse.ParseUser;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
-
-    private BottomNavigationView bottomNavigationView;
+    public static BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.action_profile:
                     default:
-                        fragment = new ProfileFragment();
+                        fragment = new ProfileFragment(ParseUser.getCurrentUser());
                         break;
                 }
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
@@ -62,6 +61,14 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static void showProgressBar() {
+//        miActionProgressItem.setVisible(true);
+    }
+
+    public static void hideProgressBar() {
+//        miActionProgressItem.setVisible(false);
     }
 
     @Override

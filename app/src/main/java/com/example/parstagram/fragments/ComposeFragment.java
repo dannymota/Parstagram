@@ -9,6 +9,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -21,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
+import com.example.parstagram.MainActivity;
 import com.example.parstagram.Post;
 import com.example.parstagram.R;
 import com.parse.FindCallback;
@@ -100,17 +103,10 @@ public class ComposeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        launchCamera();
         etDescription = view.findViewById(R.id.etDescription);
-        btnCaptureImage = view.findViewById(R.id.btnCaptureImage);
         ivPostImage = view.findViewById(R.id.ivPostImage);
         btnSubmit = view.findViewById(R.id.btnSubmit);
-
-        btnCaptureImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                launchCamera();
-            }
-        });
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,9 +137,10 @@ public class ComposeFragment extends Fragment {
                     Toast.makeText(getContext(), "Error saving post", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Toast.makeText(getContext(), "Post saved", Toast.LENGTH_SHORT).show();
-                etDescription.setText("");
-                ivPostImage.setImageResource(0);
+//                Toast.makeText(getContext(), "Post saved", Toast.LENGTH_SHORT).show();
+//                etDescription.setText("");
+//                ivPostImage.setImageResource(0);
+                getMainActivity();
             }
         });
     }
@@ -165,7 +162,7 @@ public class ComposeFragment extends Fragment {
         return file;
     }
 
-    private void launchCamera() {
+    public void launchCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Create a File reference for future access
         photoFile = getPhotoFileUri(photoFileName);
@@ -198,8 +195,13 @@ public class ComposeFragment extends Fragment {
                 // Load the taken image into a preview
                 ivPostImage.setImageBitmap(takenImage);
             } else { // Result was a failure
-                Toast.makeText(getContext(), "Picture wasn't taken", Toast.LENGTH_SHORT).show();
+                getMainActivity();
             }
         }
+    }
+
+    private void getMainActivity() {
+        Intent i = new Intent(getContext(), MainActivity.class);
+        startActivity(i);
     }
 }

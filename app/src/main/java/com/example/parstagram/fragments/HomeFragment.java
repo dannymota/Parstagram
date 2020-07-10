@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -14,6 +15,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.parstagram.EndlessRecyclerViewScrollListener;
+import com.example.parstagram.MainActivity;
 import com.example.parstagram.Post;
 import com.example.parstagram.PostsAdapter;
 import com.example.parstagram.R;
@@ -45,6 +48,7 @@ public class HomeFragment extends Fragment {
     private PostsAdapter adapter;
     private List<Post> allPosts;
     private SwipeRefreshLayout swipeContainer;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -91,15 +95,17 @@ public class HomeFragment extends Fragment {
         rvPosts = view.findViewById(R.id.rvPosts);
 
         allPosts = new ArrayList<>();
-        adapter = new PostsAdapter(getContext(), allPosts);
+        adapter = new PostsAdapter(getContext(), allPosts, getActivity().getSupportFragmentManager());
         rvPosts.setAdapter(adapter);
-        rvPosts.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        rvPosts.setLayoutManager(linearLayoutManager);
+
 
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 adapter.clear();
-                queryPosts();
+                queryPosts(0);
                 swipeContainer.setRefreshing(false);
             }
         });
@@ -109,14 +115,28 @@ public class HomeFragment extends Fragment {
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
-        queryPosts();
+        queryPosts(0);
+
+        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                queryPosts(allPosts.size() - 1);
+            }
+        };
+        rvPosts.addOnScrollListener(scrollListener);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), linearLayoutManager.getOrientation());
+        rvPosts.addItemDecoration(dividerItemDecoration);
     }
 
-    protected void queryPosts() {
+    protected void queryPosts(int skip) {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
-        query.setLimit(20);
+        query.setLimit(5);
         query.addDescendingOrder(Post.KEY_CREATED_AT);
+        query.setSkip(skip);
         query.findInBackground(new FindCallback<Post>() {
             @Override
             public void done(List<Post> posts, ParseException e) {
@@ -125,9 +145,9 @@ public class HomeFragment extends Fragment {
                     return;
                 }
 
-//                for (Post post : posts) {
-//                    Log.i(TAG, "Post: " + post.getDescription() + " by User: " + post.getUser().getUsername());
-//                }
+                for (Post post : posts) {
+                    Log.i(TAG, "Post: " + post.getDescription() + " by User: " + post.getUser().getUsername());
+                }
 
                 allPosts.addAll(posts);
                 adapter.notifyDataSetChanged();

@@ -2,6 +2,7 @@ package com.example.parstagram;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,12 +12,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterInside;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.example.parstagram.fragments.ProfileFragment;
+import com.parse.FindCallback;
+import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseRelation;
+import com.parse.ParseUser;
 
 import org.parceler.Parcels;
 
@@ -27,10 +34,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     public static final String TAG = "PostsAdapter";
     private Context context;
     private List<Post> posts;
+    private FragmentManager fragmentManager;
+    private Boolean isLiked;
 
-    public PostsAdapter(Context context, List<Post> posts) {
+    public PostsAdapter(Context context, List<Post> posts, FragmentManager fragmentManager) {
         this.context = context;
         this.posts = posts;
+        this.fragmentManager = fragmentManager;
     }
 
     @NonNull
@@ -69,6 +79,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         private ImageView ivImage;
         private TextView tvDescription;
         private ImageView ivProfileImage;
+        private ImageView ivLike;
+        private TextView tvCreatedAt;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -76,35 +88,99 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             ivImage = itemView.findViewById(R.id.ivImage);
             tvDescription = itemView.findViewById(R.id.tvDescription);
             ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
+            ivLike = itemView.findViewById(R.id.ivLike);
+            tvCreatedAt = itemView.findViewById(R.id.tvCreateAt);
             itemView.setOnClickListener(this);
         }
 
-        public void bind(Post post) {
+        public void bind(final Post post) {
             tvDescription.setEllipsize(TextUtils.TruncateAt.END);
-            tvDescription.setText(post.getDescription());
+            String sourceString = "<b>" + post.getUser().getUsername() + "</b> " + post.getDescription();
+            tvDescription.setText(Html.fromHtml(sourceString));
             tvUsername.setText(post.getUser().getUsername());
-            Glide.with(context).load(R.drawable.ic_launcher_background).transform(new CenterInside(), new RoundedCorners(400)).into(ivProfileImage);
+            if (post.getUser().getParseFile(Post.KEY_IMAGE) !=  null) {
+                Glide.with(context).load(post.getUser().getParseFile(Post.KEY_IMAGE).getUrl()).into(ivProfileImage);
+            } else {
+                Glide.with(context).load(R.drawable.ic_launcher_foreground).into(ivProfileImage);
+            }
+
             ParseFile image = post.getImage();
             if (image != null) {
                 Glide.with(context).load(image.getUrl()).into(ivImage);
             } else {
                 Glide.with(context).load(R.drawable.ic_launcher_foreground).into(ivImage);
             }
+
+            tvCreatedAt.setText(PostDetailsActivity.getRelativeTimeAgo(String.valueOf(post.getCreatedAt())));
+
+            isLiked = queryLike(post);
+
+            if (isLiked) {
+                ivLike.setImageDrawable(context.getResources().getDrawable(R.drawable.ufi_heart_active));
+            } else {
+                ivLike.setImageDrawable(context.getResources().getDrawable(R.drawable.ufi_heart));
+            }
+
+            ivLike.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ParseRelation<ParseObject> relation = post.getRelation("likes");
+                    if (isLiked && post.getUser() != ParseUser.getCurrentUser()) {
+                        relation.remove(ParseUser.getCurrentUser());
+                        post.saveInBackground();
+                        ivLike.setImageDrawable(context.getResources().getDrawable(R.drawable.ufi_heart));
+                        isLiked = false;
+                    } else if (!isLiked && post.getUser() != ParseUser.getCurrentUser()) {
+                        relation.add(ParseUser.getCurrentUser());
+                        post.saveInBackground();
+                        ivLike.setImageDrawable(context.getResources().getDrawable(R.drawable.ufi_heart_active));
+                        isLiked = true;
+                    } else {
+                        Log.d(TAG, "You can't like your own image.");
+                    }
+                }
+            });
+
+            ivProfileImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    fragmentManager.beginTransaction().replace(R.id.flContainer, new ProfileFragment(post.getUser())).addToBackStack(null).commit();
+//                    bottomNavigationView.setSelectedItemId(R.id.action_profile);
+                }
+            });
+
+            tvUsername.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    fragmentManager.beginTransaction().replace(R.id.flContainer, new ProfileFragment(post.getUser())).addToBackStack(null).commit();
+//                    bottomNavigationView.setSelectedItemId(R.id.action_profile);
+                }
+            });
         }
 
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
-            // Make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
-                // Get the movie at the position, this won't work if the class is static
                 Post post = posts.get(position);
-                // Create intent for the new activity
                 Intent intent = new Intent(context, PostDetailsActivity.class);
-                // Serialize the movie using parceler, use its short name as a key
                 intent.putExtra(Post.class.getSimpleName(), Parcels.wrap(post));
-                // Show the activity
                 context.startActivity(intent);
+            }
+        }
+
+        public boolean queryLike(Post post) {
+            ParseQuery query = post.getRelation("likes").getQuery();
+            query.whereEqualTo(Post.KEY_OBJECT_ID, ParseUser.getCurrentUser().getObjectId());
+            try {
+                List<ParseObject> userLiked = query.find();
+                if (userLiked.size() != 0) {
+                    return true;
+                }
+                return false;
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return false;
             }
         }
     }
