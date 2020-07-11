@@ -19,12 +19,12 @@ The following **required** functionality is completed:
 
 The following **stretch** features are implemented:
 
-- [ ] Style the login page to look like the real Instagram login page.
-- [ ] Style the feed to look like the real Instagram feed.
+- [x] Style the login page to look like the real Instagram login page.
+- [x] Style the feed to look like the real Instagram feed.
 - [x] User should switch between different tabs - viewing all posts (feed view), capture (camera and photo gallery view) and profile tabs (posts made) using fragments and a Bottom Navigation View.
 - [x] User can load more posts once he or she reaches the bottom of the feed using endless scrolling.
 - [x] Show the username and creation time for each post
-- [ ] After the user submits a new post, show an indeterminate progress bar while the post is being uploaded to Parse
+- [x] After the user submits a new post, show an indeterminate progress bar while the post is being uploaded to Parse
 - User Profiles:
   - [x] Allow the logged in user to add a profile photo
   - [x] Display the profile photo with each post
@@ -35,13 +35,12 @@ The following **stretch** features are implemented:
 
 The following **additional** features are implemented:
 
-- [ ] Fixed bug with clicking profile image then returning back (home fragment was overlayed over profile fragment)
 - [x] Custom SquareRelativeLayout for Grid View on profile fragment to micmic Instagram feel
 
 Please list two areas of the assignment you'd like to **discuss further with your peers** during the next class (examples include better ways to implement something, how to extend your app in certain ways, etc):
 
-1.
-2.
+1. Introduce comments on the actual most instead of relying on the recycler view in the Post Details Activity to view them.
+2. Figure out a way to optimize functions, reuse code, and introduce likes into comments.
 
 ## Video Walkthrough
 
@@ -58,7 +57,7 @@ List an 3rd party libraries, icons, graphics, or other assets you used in your a
 
 ## Notes
 
-Describe any challenges encountered while building the app.
+When designing the profile view, I wanted to model my approach off Instagram's square photos. I came to the conclusion that this is only possible through making your own layout. Another problem ensued when I wanted to implement click on image or username to take you to their profile. I had no way of making a new fragment in my PostsAdapter, but figured out that if I pass in my FragmentManager into my constructor for it, I could have a reference and thus create a new Profile Fragment. I struggled a lot with the ActionBar, eventually turning it into a Toolbar and fixing everything that was wrong. My last challenge was learning about ParseQueries, specifically when implementing comments and likes. For likes, query.find and query.whereEqualTo to be valuable in reaching my goal. For comments, I was unsure how to to approach it. Whether I would make it a pointer, relation, etc, eventually realizing that ...
 
 ## License
 

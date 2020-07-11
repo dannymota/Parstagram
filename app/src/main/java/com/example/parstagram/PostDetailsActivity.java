@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterInside;
@@ -22,6 +24,8 @@ import org.parceler.Parcels;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -34,6 +38,13 @@ public class PostDetailsActivity extends AppCompatActivity {
     private TextView tvDescription;
     private ImageView ivProfileImage;
     private TextView tvLikes;
+    private RecyclerView rvComments;
+    private CommentsAdapter adapter;
+    private List<String> allComments;
+
+    public PostDetailsActivity() {
+        // Required empty public constructor
+    }
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +59,9 @@ public class PostDetailsActivity extends AppCompatActivity {
         tvDescription = findViewById(R.id.tvDescription);
         ivProfileImage = findViewById(R.id.ivProfileImage);
         tvLikes = findViewById(R.id.tvLikes);
+        rvComments = findViewById(R.id.rvComments);
+
+        getAllComments();
 
         tvUsername.setText(post.getUser().getUsername());
         String sourceString = "<b>" + post.getUser().getUsername() + "</b> " + post.getDescription();
@@ -55,6 +69,15 @@ public class PostDetailsActivity extends AppCompatActivity {
         tvCreatedAt.setText(getRelativeTimeAgo(String.valueOf(post.getCreatedAt())));
         int likeCount = queryLikes(post);
         tvLikes.setText(String.valueOf(likeCount) + (likeCount == 1 ? " Like" :" Likes"));
+
+        allComments = new ArrayList<>();
+
+        adapter = new CommentsAdapter(this, allComments);
+
+        rvComments.setAdapter(adapter);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvComments.setLayoutManager(linearLayoutManager);
 
         ParseFile image = post.getImage();
 
@@ -98,5 +121,17 @@ public class PostDetailsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public void getAllComments() {
+        ParseQuery<ParseObject> groupQuery = new ParseQuery<ParseObject> ("Post");
+        groupQuery.include("comments");
+        groupQuery.whereEqualTo("objectId", post.getObjectId());
+        try {
+            List<ParseObject> comments = groupQuery.find();
+            Log.d("Testing", "comments: " + comments.toString());
+        } catch (com.parse.ParseException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -8,8 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
@@ -25,6 +28,8 @@ import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.parceler.Parcels;
 
 import java.util.List;
@@ -81,6 +86,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         private ImageView ivProfileImage;
         private ImageView ivLike;
         private TextView tvCreatedAt;
+        private Button btnPost;
+        private EditText etComment;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -90,6 +97,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
             ivLike = itemView.findViewById(R.id.ivLike);
             tvCreatedAt = itemView.findViewById(R.id.tvCreateAt);
+            btnPost = itemView.findViewById(R.id.btnPost);
+            etComment = itemView.findViewById(R.id.etComment);
             itemView.setOnClickListener(this);
         }
 
@@ -138,6 +147,29 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                     } else {
                         Log.d(TAG, "You can't like your own image.");
                     }
+                }
+            });
+
+            btnPost.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String body = etComment.getText().toString();
+                    if (body.isEmpty()) {
+                        Toast.makeText(context, "Comment can't be empty", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    JSONObject comment = new JSONObject();
+                    try {
+                        comment.put("username", ParseUser.getCurrentUser().getUsername());
+                        comment.put("comment", body);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    post.add("comments", comment.toString());
+                    post.saveInBackground();
+                    etComment.setText("");
+                    Toast.makeText(context, "Comment sent", Toast.LENGTH_SHORT).show();
                 }
             });
 

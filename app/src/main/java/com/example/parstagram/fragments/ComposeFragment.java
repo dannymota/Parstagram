@@ -125,6 +125,7 @@ public class ComposeFragment extends Fragment {
     }
 
     private void savePost(String description, ParseUser currentUser, File photoFile) {
+        MainActivity.showProgressBar();
         Post post = new Post();
         post.setDescription(description);
         post.setImage(new ParseFile(photoFile));
@@ -141,8 +142,10 @@ public class ComposeFragment extends Fragment {
 //                etDescription.setText("");
 //                ivPostImage.setImageResource(0);
                 getMainActivity();
+                MainActivity.hideProgressBar();
             }
         });
+
     }
 
     public File getPhotoFileUri(String fileName) {

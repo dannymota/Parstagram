@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,6 +23,7 @@ import com.parse.ParseUser;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
+    public static ProgressBar pbProgressAction;
     public static BottomNavigationView bottomNavigationView;
 
     @Override
@@ -29,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
         final FragmentManager fragmentManager = getSupportFragmentManager();
         bottomNavigationView = findViewById(R.id.bottomNavigation);
-
+        pbProgressAction = findViewById(R.id.pbProgressAction);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -56,19 +60,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.logout) {
-            ParseUser.logOut();
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
+
         }
         return super.onOptionsItemSelected(item);
     }
 
+    public void LogOut(View v){
+        ParseUser.logOut();
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
+
     public static void showProgressBar() {
-//        miActionProgressItem.setVisible(true);
+        pbProgressAction.setVisibility(View.VISIBLE);
     }
 
     public static void hideProgressBar() {
-//        miActionProgressItem.setVisible(false);
+        pbProgressAction.setVisibility(View.INVISIBLE);
     }
 
     @Override
