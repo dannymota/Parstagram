@@ -46,7 +46,8 @@ Please list two areas of the assignment you'd like to **discuss further with you
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='1.gif' title='Video Walkthrough' width='35%' alt='Video Walkthrough' />
+<img src='2.gif' title='Video Walkthrough' width='35%' alt='Video Walkthrough' />
 
 ## Credits
 
@@ -57,7 +58,7 @@ List an 3rd party libraries, icons, graphics, or other assets you used in your a
 
 ## Notes
 
-When designing the profile view, I wanted to model my approach off Instagram's square photos. I came to the conclusion that this is only possible through making your own layout. Another problem ensued when I wanted to implement click on image or username to take you to their profile. I had no way of making a new fragment in my PostsAdapter, but figured out that if I pass in my FragmentManager into my constructor for it, I could have a reference and thus create a new Profile Fragment. I struggled a lot with the ActionBar, eventually turning it into a Toolbar and fixing everything that was wrong. My last challenge was learning about ParseQueries, specifically when implementing comments and likes. For likes, query.find and query.whereEqualTo to be valuable in reaching my goal. For comments, I was unsure how to to approach it. Whether I would make it a pointer, relation, etc, eventually realizing that ...
+When designing the profile view, I wanted to model my approach off Instagram's square photos. I came to the conclusion that this is only possible through making your own layout. Another problem ensued when I wanted to implement click on image or username to take you to their profile. I had no way of making a new fragment in my PostsAdapter, but figured out that if I pass in my FragmentManager into my constructor for it, I could have a reference and thus create a new Profile Fragment. I struggled a lot with the ActionBar, eventually turning it into a Toolbar and fixing everything that was wrong. My last challenge was learning about ParseQueries, specifically when implementing comments and likes. For likes, query.find and query.whereEqualTo to be valuable in reaching my goal. For comments, I was unsure how to to approach it. Whether I would make it a pointer, relation, etc. I tried to make an array of JSON objects, but was unsure of how to parse it.
 
 ## License
 
